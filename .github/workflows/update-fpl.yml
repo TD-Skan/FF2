@@ -1,0 +1,54 @@
+name: Update FPL Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download FPL JSON data
+        run: |
+          mkdir -p data
+          curl -L --fail --retry 3 https://fantasy.premierleague.com/api/bootstrap-static/ -o data/bootstrap-static.json
+          curl -L --fail --retry 3 https://fantasy.premierleague.com/api/fixtures/ -o data/fixtures.json
+
+      - name: Validate downloaded JSON
+        run: |
+          python - <<'PY'
+          import json
+
+          with open('data/bootstrap-static.json', 'r', encoding='utf-8') as f:
+              bootstrap = json.load(f)
+
+          with open('data/fixtures.json', 'r', encoding='utf-8') as f:
+              fixtures = json.load(f)
+
+          assert isinstance(bootstrap.get('elements'), list), 'bootstrap-static missing elements list'
+          assert isinstance(bootstrap.get('events'), list), 'bootstrap-static missing events list'
+          assert isinstance(bootstrap.get('teams'), list), 'bootstrap-static missing teams list'
+          assert isinstance(bootstrap.get('element_types'), list), 'bootstrap-static missing element_types list'
+          assert isinstance(fixtures, list), 'fixtures must be a list'
+
+          print('JSON validation passed')
+          PY
+
+      - name: Commit data updates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add data/bootstrap-static.json data/fixtures.json
+
+          git diff --cached --quiet || git commit -m "Update FPL data"
+
+          git push

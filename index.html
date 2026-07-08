@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FantasyFooty Plus - FPL Predictor</title>
-  <meta name="description" content="GitHub Pages-only Fantasy Premier League predictor with pitch view, wildcard picks, player search and comparison." />
+  <meta name="description" content="GitHub Pages-only Fantasy Premier League predictor with pitch view, wildcard picks, player search, comparison and configurable strategy." />
   <link rel="icon" href="assets/icon-192.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -13,63 +13,102 @@
     <div>
       <p class="eyebrow">Fantasy Premier League</p>
       <h1>FantasyFooty Plus</h1>
-      <p class="intro">Predict a squad, view it as a football line-up, search any player, compare two players and find wildcard picks — all on GitHub Pages using repository JSON data.</p>
+      <p class="intro">Auto-loads GitHub-hosted FPL JSON data, lets you configure your strategy, then predicts a squad and displays it as a football line-up.</p>
     </div>
     <div class="hero-panel">
       <span>Budget</span>
       <strong id="budgetDisplay">£100.0m</strong>
-      <small>GitHub-only · no CORS browser calls</small>
+      <small>GitHub Pages only · no browser CORS issue</small>
     </div>
   </header>
 
   <main class="shell">
     <section class="card controls-card">
-      <div class="controls-grid">
-        <label>Budget (£m)<input id="budgetInput" type="number" min="80" max="120" step="0.5" value="100" /></label>
-        <label>Gameweek<select id="gameweekSelect"><option value="auto">Auto detect</option></select></label>
-        <label>Minimum chance of playing<select id="chanceInput"><option value="75" selected>75%+</option><option value="50">50%+</option><option value="25">25%+</option><option value="0">Include all</option></select></label>
-        <label>Search selected squad<input id="squadSearchInput" type="search" placeholder="Player, team or position" /></label>
+      <div class="section-heading">
+        <div>
+          <h2>Configuration</h2>
+          <p>Data loads automatically. Choose your approach before running the team predictor.</p>
+        </div>
       </div>
+
+      <div class="controls-grid">
+        <label>Budget (£m) <span class="tip" title="Total squad budget. FPL uses £100.0m by default.">?</span>
+          <input id="budgetInput" type="number" min="80" max="120" step="0.5" value="100" />
+        </label>
+
+        <label>Gameweek <span class="tip" title="Auto uses FPL's next/current/first unfinished gameweek. You can manually choose a gameweek after data loads.">?</span>
+          <select id="gameweekSelect"><option value="auto">Auto detect</option></select>
+        </label>
+
+        <label>Formation preference <span class="tip" title="Auto chooses the highest predicted valid starting XI. Fixed formations force the pitch layout if the squad supports it.">?</span>
+          <select id="formationSelect">
+            <option value="auto" selected>Auto best formation</option>
+            <option value="3-4-3">3-4-3</option>
+            <option value="3-5-2">3-5-2</option>
+            <option value="4-3-3">4-3-3</option>
+            <option value="4-4-2">4-4-2</option>
+            <option value="4-5-1">4-5-1</option>
+            <option value="5-3-2">5-3-2</option>
+            <option value="5-4-1">5-4-1</option>
+          </select>
+        </label>
+
+        <label>Selection style <span class="tip" title="Safe favours minutes, availability and ownership. Risky favours upside, fixture swings and attacking players.">?</span>
+          <select id="riskProfile">
+            <option value="balanced" selected>Balanced</option>
+            <option value="safe">Safe / reliable</option>
+            <option value="aggressive">Risky / high upside</option>
+            <option value="attack-heavy">More money up front</option>
+            <option value="defence-value">Value defence</option>
+            <option value="differential">Differential hunter</option>
+          </select>
+        </label>
+
+        <label>Minimum chance of playing <span class="tip" title="Filters out players with low chance-of-playing values before the squad is selected.">?</span>
+          <select id="chanceInput"><option value="75" selected>75%+</option><option value="50">50%+</option><option value="25">25%+</option><option value="0">Include all</option></select>
+        </label>
+
+        <label>Squad search <span class="tip" title="Filters the selected 15-player squad table by player, team or position.">?</span>
+          <input id="squadSearchInput" type="search" placeholder="Player, team or position" />
+        </label>
+      </div>
+
       <div class="actions">
-        <button id="loadButton" type="button">Load data</button>
         <button id="predictButton" type="button" disabled>Predict team</button>
+        <button id="reloadButton" type="button">Reload data</button>
         <button id="downloadButton" type="button" disabled>Download CSV</button>
       </div>
-      <p id="statusMessage" class="status">Ready. Run the GitHub Action once, then click Load data.</p>
+      <p id="statusMessage" class="status">Loading data automatically…</p>
     </section>
 
     <section class="summary-grid">
       <article class="summary-card"><span>Gameweek</span><strong id="summaryGameweek">-</strong></article>
       <article class="summary-card"><span>Season</span><strong id="summarySeason">-</strong></article>
+      <article class="summary-card"><span>Config</span><strong id="summaryConfig">-</strong></article>
       <article class="summary-card"><span>Squad cost</span><strong id="summaryCost">-</strong></article>
-      <article class="summary-card"><span>Money left</span><strong id="summaryRemaining">-</strong></article>
       <article class="summary-card"><span>XI points</span><strong id="summaryPoints">-</strong></article>
       <article class="summary-card"><span>Captain / Vice</span><strong id="summaryCaptain">-</strong></article>
     </section>
 
     <section class="card pitch-card">
-      <div class="section-heading">
-        <div><h2>Football line-up view</h2><p id="formationText">Predict a team to see the formation on the pitch.</p></div>
-      </div>
-      <div class="pitch" id="pitch">
-        <div class="pitch-line"><span class="empty-note">No line-up yet.</span></div>
-      </div>
+      <div class="section-heading"><div><h2>Football line-up view</h2><p id="formationText">Run the predictor to see your formation on the pitch.</p></div></div>
+      <div class="pitch" id="pitch"><div class="pitch-line"><span class="empty-note">No line-up yet.</span></div></div>
       <div class="bench-strip" id="benchStrip"></div>
     </section>
 
     <section class="grid-two">
       <section class="card">
-        <div class="section-heading"><div><h2>Wildcard picks</h2><p>Differentials, budget options and high-upside alternatives not already in the selected squad.</p></div></div>
+        <div class="section-heading"><div><h2>Wildcard picks <span class="tip" title="Wildcard picks are selected from the full player pool and exclude your current predicted squad.">?</span></h2><p>Differentials, value picks and high-upside alternatives.</p></div></div>
         <div class="wildcard-tabs">
           <button class="tab-btn active" data-tab="differentials">Differentials</button>
           <button class="tab-btn" data-tab="value">Value</button>
           <button class="tab-btn" data-tab="upside">Upside</button>
         </div>
-        <div id="wildcardList" class="player-card-list"><p class="empty">No wildcard picks yet.</p></div>
+        <div id="wildcardList" class="player-card-list"><p class="empty">Predict a team to generate wildcard picks.</p></div>
       </section>
 
       <section class="card">
-        <div class="section-heading"><div><h2>Search any player</h2><p>Search the full player list and load their stats.</p></div></div>
+        <div class="section-heading"><div><h2>Search any player <span class="tip" title="Searches the complete bootstrap-static player list downloaded by the GitHub Action.">?</span></h2><p>Load individual player stats from the full data set.</p></div></div>
         <label class="wide-label">Player search<input id="playerSearchInput" list="playerOptions" type="search" placeholder="Start typing a player name" /></label>
         <datalist id="playerOptions"></datalist>
         <div class="actions compact"><button id="playerSearchButton" type="button" disabled>Load player stats</button></div>
@@ -78,7 +117,7 @@
     </section>
 
     <section class="card">
-      <div class="section-heading"><div><h2>Player comparison tool</h2><p>Compare any two players side by side.</p></div></div>
+      <div class="section-heading"><div><h2>Player comparison tool <span class="tip" title="Compares two players using the same predicted score model and raw FPL fields used by the predictor.">?</span></h2><p>Compare any two players side by side.</p></div></div>
       <div class="compare-controls">
         <label>Player A<select id="compareA"><option value="">Select player</option></select></label>
         <label>Player B<select id="compareB"><option value="">Select player</option></select></label>
@@ -93,7 +132,7 @@
     </section>
 
     <section class="card">
-      <div class="section-heading"><div><h2>Full 15-player squad</h2><p>Filtered by the search box above.</p></div></div>
+      <div class="section-heading"><div><h2>Full 15-player squad</h2><p>Filtered by the squad search box.</p></div></div>
       <div class="table-wrap"><table><thead><tr><th>Pos</th><th>Name</th><th>Team</th><th>Price</th><th>Pred</th><th>Value</th><th>EP</th><th>Form</th><th>Minutes</th><th>Total</th></tr></thead><tbody id="squadBody"><tr><td colspan="10" class="empty">No prediction yet.</td></tr></tbody></table></div>
     </section>
   </main>

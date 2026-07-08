@@ -1,15 +1,16 @@
-# FantasyFooty
+# FantasyFooty Plus
 
-A GitHub Pages-only Fantasy Premier League squad predictor.
+A GitHub Pages-only Fantasy Premier League predictor with:
 
-This version avoids browser CORS problems by **not calling the FPL API from the browser**. Instead, a GitHub Action downloads the FPL JSON data into the repository. The website then reads:
+- football pitch line-up view
+- wildcard picks: differentials, value picks and high-upside picks
+- player search and stat panel
+- two-player comparison tool
+- starting XI and full squad tables
+- CSV export
+- GitHub Action that updates FPL JSON data nightly
 
-```text
-./data/bootstrap-static.json
-./data/fixtures.json
-```
-
-## Folder tree
+## Repository tree
 
 ```text
 FantasyFooty/
@@ -20,7 +21,8 @@ FantasyFooty/
 ├── .nojekyll
 ├── data/
 │   ├── bootstrap-static.json
-│   └── fixtures.json
+│   ├── fixtures.json
+│   └── metadata.json
 ├── assets/
 │   ├── logo.png
 │   ├── icon-192.png
@@ -32,34 +34,22 @@ FantasyFooty/
         └── update-fpl.yml
 ```
 
-## How to publish
+## Setup
 
-1. Create a new GitHub repository.
-2. Upload everything in this folder into the repository root.
-3. Go to **Settings > Pages**.
-4. Set source to branch `main` and folder `/root`.
-5. Go to **Actions > Update FPL Data > Run workflow** once.
-6. Refresh your GitHub Pages site and click **Load data**.
+1. Upload all files to the root of your GitHub repository.
+2. Make sure `.github/workflows/update-fpl.yml` is present on the `main` branch.
+3. Go to **Settings > Pages** and publish from `main` / root.
+4. Go to **Actions > Update FPL Data > Run workflow** once.
+5. Open the Pages site, click **Load data**, then **Predict team**.
 
-## Why this avoids CORS
+## Why this works on GitHub Pages
 
-GitHub Pages serves the JSON files from the same origin as the website. The browser loads local repository files instead of directly calling the FPL API.
+The browser reads local JSON files from the repository:
 
-## Prediction model
+```text
+./data/bootstrap-static.json
+./data/fixtures.json
+./data/metadata.json
+```
 
-The score uses:
-
-- expected next points
-- expected this points
-- form
-- points per game
-- fixture difficulty
-- minutes played
-- chance of playing
-- selected-by percentage
-
-It then builds a legal 15-player squad within budget and picks the best starting XI.
-
-## Important
-
-This is a transparent learning model, not official FPL advice.
+The browser does not call the FPL API directly, which avoids CORS errors.

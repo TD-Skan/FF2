@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FantasyFooty Plus - FPL Predictor</title>
-  <meta name="description" content="GitHub Pages-only Fantasy Premier League predictor with pitch view, wildcard picks, player search, comparison and configurable strategy." />
-  <link rel="icon" href="assets/icon-192.png" />
+  <meta name="description" content="Fantasy Premier League planner with auto-loaded GitHub data, configurable strategy, football pitch view, wildcard picks, player search, comparison and a top 50 season table." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,11 +12,14 @@
     <div>
       <p class="eyebrow">Fantasy Premier League</p>
       <h1>FantasyFooty Plus</h1>
-      <p class="intro">Welcome to FantasyFooty Plus. Your simple, interactive FPL squad planner. Explore players, compare options, test different strategies, and build a line-up ready for the next gameweek.</p>
+      <p class="intro">
+        Welcome to FantasyFooty — an interactive FPL squad planner to help you explore players, compare picks, test strategies, and build your best line-up for the next gameweek.
+      </p>
     </div>
     <div class="hero-panel">
       <span>Budget</span>
       <strong id="budgetDisplay">£100.0m</strong>
+      <small>GitHub Pages only · no browser CORS issue</small>
     </div>
   </header>
 
@@ -64,7 +66,12 @@
         </label>
 
         <label>Minimum chance of playing <span class="tip" title="Filters out players with low chance-of-playing values before the squad is selected.">?</span>
-          <select id="chanceInput"><option value="75" selected>75%+</option><option value="50">50%+</option><option value="25">25%+</option><option value="0">Include all</option></select>
+          <select id="chanceInput">
+            <option value="75" selected>75%+</option>
+            <option value="50">50%+</option>
+            <option value="25">25%+</option>
+            <option value="0">Include all</option>
+          </select>
         </label>
 
         <label>Squad search <span class="tip" title="Filters the selected 15-player squad table by player, team or position.">?</span>
@@ -79,63 +86,7 @@
       </div>
       <p id="statusMessage" class="status">Loading data automatically…</p>
     </section>
-<section class="card">
-  <div class="section-heading">
-    <div>
-      <h2>
-        Top 50 players this season
-        <span class="tip" title="Ranks players by total FPL points for the current season using the data in bootstrap-static.json.">?</span>
-      </h2>
-      <p>
-        A season leaderboard showing the highest scoring players so far.
-      </p>
-    </div>
 
-    <div class="leaderboard-controls">
-      <label>
-        Position
-        <select id="topPlayersPositionFilter">
-          <option value="all">All positions</option>
-          <option value="GKP">Goalkeepers</option>
-          <option value="DEF">Defenders</option>
-          <option value="MID">Midfielders</option>
-          <option value="FWD">Forwards</option>
-        </select>
-      </label>
-
-      <label>
-        Search
-        <input id="topPlayersSearchInput" type="search" placeholder="Player or team" />
-      </label>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Pos</th>
-          <th>Player</th>
-          <th>Team</th>
-          <th>Price</th>
-          <th>Total</th>
-          <th>PPG</th>
-          <th>Form</th>
-          <th>Goals</th>
-          <th>Assists</th>
-          <th>Own %</th>
-        </tr>
-      </thead>
-      <tbody id="topPlayersBody">
-        <tr>
-          <td colspan="11" class="empty">Data will appear once the FPL data has loaded.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-    
     <section class="summary-grid">
       <article class="summary-card"><span>Gameweek</span><strong id="summaryGameweek">-</strong></article>
       <article class="summary-card"><span>Season</span><strong id="summarySeason">-</strong></article>
@@ -143,6 +94,37 @@
       <article class="summary-card"><span>Squad cost</span><strong id="summaryCost">-</strong></article>
       <article class="summary-card"><span>XI points</span><strong id="summaryPoints">-</strong></article>
       <article class="summary-card"><span>Captain / Vice</span><strong id="summaryCaptain">-</strong></article>
+    </section>
+
+    <section class="card">
+      <div class="section-heading leaderboard-heading">
+        <div>
+          <h2>Top 50 players this season <span class="tip" title="Ranks players by total FPL points from the current season data in bootstrap-static.json.">?</span></h2>
+          <p>A season leaderboard showing the highest scoring players so far.</p>
+        </div>
+        <div class="leaderboard-controls">
+          <label>Position
+            <select id="topPlayersPositionFilter">
+              <option value="all">All positions</option>
+              <option value="GKP">Goalkeepers</option>
+              <option value="DEF">Defenders</option>
+              <option value="MID">Midfielders</option>
+              <option value="FWD">Forwards</option>
+            </select>
+          </label>
+          <label>Search
+            <input id="topPlayersSearchInput" type="search" placeholder="Player or team" />
+          </label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Rank</th><th>Pos</th><th>Player</th><th>Team</th><th>Price</th><th>Total</th><th>PPG</th><th>Form</th><th>Goals</th><th>Assists</th><th>Own %</th></tr>
+          </thead>
+          <tbody id="topPlayersBody"><tr><td colspan="11" class="empty">Data will appear once the FPL data has loaded.</td></tr></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="card pitch-card">

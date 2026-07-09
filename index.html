@@ -79,7 +79,63 @@
       </div>
       <p id="statusMessage" class="status">Loading data automatically…</p>
     </section>
+<section class="card">
+  <div class="section-heading">
+    <div>
+      <h2>
+        Top 50 players this season
+        <span class="tip" title="Ranks players by total FPL points for the current season using the data in bootstrap-static.json.">?</span>
+      </h2>
+      <p>
+        A season leaderboard showing the highest scoring players so far.
+      </p>
+    </div>
 
+    <div class="leaderboard-controls">
+      <label>
+        Position
+        <select id="topPlayersPositionFilter">
+          <option value="all">All positions</option>
+          <option value="GKP">Goalkeepers</option>
+          <option value="DEF">Defenders</option>
+          <option value="MID">Midfielders</option>
+          <option value="FWD">Forwards</option>
+        </select>
+      </label>
+
+      <label>
+        Search
+        <input id="topPlayersSearchInput" type="search" placeholder="Player or team" />
+      </label>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Pos</th>
+          <th>Player</th>
+          <th>Team</th>
+          <th>Price</th>
+          <th>Total</th>
+          <th>PPG</th>
+          <th>Form</th>
+          <th>Goals</th>
+          <th>Assists</th>
+          <th>Own %</th>
+        </tr>
+      </thead>
+      <tbody id="topPlayersBody">
+        <tr>
+          <td colspan="11" class="empty">Data will appear once the FPL data has loaded.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+    
     <section class="summary-grid">
       <article class="summary-card"><span>Gameweek</span><strong id="summaryGameweek">-</strong></article>
       <article class="summary-card"><span>Season</span><strong id="summarySeason">-</strong></article>

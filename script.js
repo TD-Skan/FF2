@@ -89,5 +89,62 @@ function statsGrid(p){ const stats=[['Price',money(p.price)],['Predicted',p.pred
 function loadPlayerStats(){ const p=findPlayerBySearch(); $("playerStatsPanel").innerHTML=p?`<h3>${esc(p.name)} <small>${esc(p.team)} · ${esc(p.position)}</small></h3>${statsGrid(p)}${p.news?`<p><strong>News:</strong> ${esc(p.news)}</p>`:''}`:'<p class="empty">Player not found. Load data first or check spelling.</p>'; }
 function comparePlayers(){ const a=allPlayers.find(p=>p.id===Number($("compareA").value)), b=allPlayers.find(p=>p.id===Number($("compareB").value)); if(!a||!b){ $("comparisonPanel").innerHTML='<p class="empty">Select two players to compare.</p>'; return;} const metrics=[['Price',money(a.price),money(b.price)],['Predicted points',a.predictedPoints.toFixed(2),b.predictedPoints.toFixed(2)],['Value score',a.valueScore.toFixed(2),b.valueScore.toFixed(2)],['EP next',a.expectedNext,b.expectedNext],['Form',a.form,b.form],['PPG',a.pointsPerGame,b.pointsPerGame],['Total points',a.totalPoints,b.totalPoints],['Minutes',a.minutes,b.minutes],['Goals',a.goals,b.goals],['Assists',a.assists,b.assists],['Ownership',`${a.selectedByPercent}%`,`${b.selectedByPercent}%`]]; $("comparisonPanel").innerHTML=`<table class="compare-table"><thead><tr><th>Metric</th><th>${esc(a.name)}</th><th>${esc(b.name)}</th></tr></thead><tbody>${metrics.map(m=>`<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join('')}</tbody></table>`; }
 function downloadCsv(){ const headers=['Position','Name','FullName','Team','Price','PredictedPoints','ValueScore','ExpectedNext','Form','PointsPerGame','TotalPoints','Minutes','SelectedByPercent','Status']; const rows=selectedSquad.sort(sortPred).map(p=>[p.position,p.name,p.fullName,p.team,p.price,p.predictedPoints,p.valueScore,p.expectedNext,p.form,p.pointsPerGame,p.totalPoints,p.minutes,p.selectedByPercent,p.status]); const csv=[headers,...rows].map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`Predicted-FPL-Team-GW${currentGameweekId}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+function renderTopPlayersTable() {
+  const tbody = $("topPlayersBody");
 
+  if (!tbody || !allPlayers || !allPlayers.length) {
+    return;
+  }
+
+  const positionFilter = $("topPlayersPositionFilter")?.value || "all";
+  const searchText = $("topPlayersSearchInput")?.value.trim().toLowerCase() || "";
+
+  let rows = allPlayers
+    .filter(player => {
+      if (positionFilter !== "all" && player.position !== positionFilter) {
+        return false;
+      }
+
+      if (!searchText) {
+        return true;
+      }
+
+      return `${player.name} ${player.fullName} ${player.team}`
+        .toLowerCase()
+        .includes(searchText);
+    })
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .slice(0, 50);
+
+  if (!rows.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="11" class="empty">No players found.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((player, index) => {
+    const rank = index + 1;
+    const rankClass = rank <= 3 ? "rank-badge top-three" : "rank-badge";
+
+    return `
+      <tr>
+        <td><span class="${rankClass}">${rank}</span></td>
+        <td><span class="pill">${esc(player.position)}</span></td>
+        <td>${esc(player.name)}</td>
+        <td>${esc(player.team)}</td>
+        <td>${money(player.price).replace("m", "")}</td>
+        <td class="total-points">${player.totalPoints}</td>
+        <td>${player.pointsPerGame}</td>
+        <td>${player.form}</td>
+        <td>${player.goals}</td>
+        <td>${player.assists}</td>
+        <td>${player.selectedByPercent}%</td>
+      </tr>
+    `;
+  }).join("");
+}
+`
 $("predictButton").addEventListener('click',predictTeam); $("reloadButton").addEventListener('click',()=>loadData(false)); $("downloadButton").addEventListener('click',downloadCsv); $("squadSearchInput").addEventListener('input',renderSquad); $("playerSearchButton").addEventListener('click',loadPlayerStats); $("compareButton").addEventListener('click',comparePlayers); $("budgetInput").addEventListener('input',()=>{$("budgetDisplay").textContent=money(Number($("budgetInput").value));}); document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentWildcardTab=btn.dataset.tab; renderWildcardPicks();})); document.addEventListener('DOMContentLoaded',()=>loadData(true));
